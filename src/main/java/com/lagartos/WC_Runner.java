@@ -10,9 +10,17 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import java.util.Scanner;
+
 
 public class WC_Runner {
     public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese la fecha de inicio con el siguiente formato dd-MM-yyyy");
+        String fechaIniStr = scanner.nextLine();
+        System.out.println("Ingrese la fecha fin con el siguiente formato dd-MM-yyyy");
+        String fechaFinStr = scanner.nextLine();
+
         JobConf conf = new JobConf(WC_Runner.class);
         conf.setJobName("WordCount");
         conf.setOutputKeyClass(Text.class);
@@ -24,6 +32,11 @@ public class WC_Runner {
         conf.setOutputFormat(TextOutputFormat.class);
         FileInputFormat.setInputPaths(conf, new Path(args[0]));
         FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+
+        // Guarda las fechas en la configuración del trabajo
+        conf.set("fechaIni", fechaIniStr);
+        conf.set("fechaFin", fechaFinStr);
+
         JobClient.runJob(conf);
     }
 }
