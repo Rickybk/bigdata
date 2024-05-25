@@ -17,6 +17,30 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
     private Text word = new Text();
     private String fechaIniStr;
     private String fechaFinStr;
+    private static final Set<String> STOP_WORDS = new HashSet<>(Arrays.asList("a", "ante", "bajo", "cabe", "con", "contra", "de", "desde", "durante", 
+    "en", "entre", "hacia", "hasta", "mediante", "para", "por", "según", 
+    "sin", "so", "sobre", "tras", "versus", "vía", "el", "la", "los", 
+    "las", "un", "una", "unos", "unas", "al", "del", "y", "o", "u", "pero", 
+    "aunque", "ni", "sin", "sino", "si", "mas", "ya", "bien", "sea", "que", 
+    "como", "cuál", "cuáles", "donde", "cuando", "cuyo", "cuya", "cuyos", 
+    "cuyas", "quién", "quiénes", "qué", "cuánto", "cuánta", "cuántos", 
+    "cuántas", "mi", "tu", "su", "nuestro", "nuestra", "nuestros", "nuestras", 
+    "vuestro", "vuestra", "vuestros", "vuestras", "me", "te", "se", "nos", 
+    "os", "les", "lo", "la", "le", "los", "las", "les", "uno", "dos", 
+    "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", 
+    "primer", "segundo", "tercer", "cuarto", "quinto", "sexto", "séptimo", 
+    "octavo", "noveno", "décimo", "primero", "segundo", "tercero", "cuarto", 
+    "quinto", "sexto", "séptimo", "octavo", "noveno", "décimo", "por", 
+    "señor", "señora", "señores", "señoras", "don", "doña", "etc", "etcétera", 
+    "ah", "ay", "eh", "hey", "hola", "oh", "sí", "sí", "no", "muy", 
+    "más", "menos", "mucho", "muchos", "poco", "pocos", "demasiado", 
+    "nada", "algo", "todo", "toda", "todos", "todas", "cualquier", 
+    "cualquiera", "cualesquiera", "otro", "otra", "otros", "otras", 
+    "mismo", "misma", "mismos", "mismas", "alguien", "nadie", "alguno", 
+    "alguna", "algunos", "algunas", "ninguno", "ninguna", "ningunos", 
+    "ningunas", "quien", "cuyo", "cuyos", "cuyas", "sobre", "tras", "más", 
+    "menos", "ese", "esa", "esos", "esas", "este", "esta", "estos", 
+    "estas", "aquel", "aquella", "aquellos", "aquellas"));
 
     public void configure(JobConf job) {
         // Obtiene las fechas de la configuración del trabajo
@@ -25,22 +49,28 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
     }
 
     public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output,
-            Reporter reporter) throws IOException {
-        String line = value.toString();
-        StringTokenizer tokenizer = new StringTokenizer(line, "\n");
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            String[] parts = token.split("_");
-            if (parts.length == 2) {
-                String title = parts[0];
-                String date = parts[1];
-                if (isDateInRange(date)) {
-                    word.set(title);
-                    output.collect(word, one);
+        Reporter reporter) throws IOException {
+    String line = value.toString();
+    StringTokenizer tokenizer = new StringTokenizer(line, "\n");
+    while (tokenizer.hasMoreTokens()) {
+        String token = tokenizer.nextToken();
+        String[] parts = token.split("_");
+        if (parts.length == 2) {
+            String title = parts[0];
+            String date = parts[1];
+            if (isDateInRange(date)) {
+                StringTokenizer wordTokenizer = new StringTokenizer(title);
+                while (wordTokenizer.hasMoreTokens()) {
+                    String wordStr = wordTokenizer.nextToken();
+                    if (!STOP_WORDS.contains(wordStr.toLowerCase())) {
+                        word.set(wordStr);
+                        output.collect(word, one);
+                    }
                 }
             }
         }
     }
+}
 
     private boolean isDateInRange(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
