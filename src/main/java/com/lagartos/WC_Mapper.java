@@ -46,6 +46,9 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
         // Obtiene las fechas de la configuración del trabajo
         fechaIniStr = job.get("fechaIni");
         fechaFinStr = job.get("fechaFin");
+        System.out.println("Fechas en el Mapper");
+        System.out.println(fechaIniStr);
+        System.out.println(fechaFinStr);
     }
 
     public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output,
@@ -73,11 +76,16 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
 }
 
     private boolean isDateInRange(String date) {
+        System.out.println("Fecha como obtenida del txt");
+        System.out.println(date);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate fechaIni = LocalDate.parse(fechaIniStr, formatter);
         LocalDate fechaFin = LocalDate.parse(fechaFinStr, formatter);
         LocalDate fecha = LocalDate.parse(date, formatter);
-
+        System.out.println("Fecha como date");
+        System.out.println(fechaIni);
+        System.out.println(fechaFin);
+        System.out.println(fecha);
         return (fecha.isAfter(fechaIni) || fecha.isEqual(fechaIni)) && (fecha.isBefore(fechaFin) || fecha.isEqual(fechaFin));
     }
 }
