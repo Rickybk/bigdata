@@ -1,5 +1,9 @@
 package com.lagartos;
 
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import org.apache.hadoop.mapred.JobConf;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import org.apache.hadoop.io.IntWritable;
