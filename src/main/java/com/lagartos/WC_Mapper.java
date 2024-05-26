@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
     private final static IntWritable one = new IntWritable(1);
+    private static final Log LOG = LogFactory.getLog(WC_Mapper.class);
     private Text word = new Text();
     private String fechaIniStr;
     private String fechaFinStr;
