@@ -64,7 +64,7 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
         if (parts.length == 2) {
             String title = parts[0];
             String date = parts[1];
-            if (isDateInRange(date, fechaIniStr, fechaFinStr)) {
+            if (isDateInRange(date)) {
                 StringTokenizer wordTokenizer = new StringTokenizer(title);
                 while (wordTokenizer.hasMoreTokens()) {
                     String wordStr = wordTokenizer.nextToken();
