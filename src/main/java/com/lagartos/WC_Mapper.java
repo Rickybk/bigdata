@@ -15,11 +15,12 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.apache.log4j.Logger;
 
 public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Text, Text, IntWritable> {
     private final static IntWritable one = new IntWritable(1);
+    private static final Logger LOG = Logger.getLogger(WC_Mapper.class);
     private Text word = new Text();
     private String fechaIniStr;
     private String fechaFinStr;
@@ -49,16 +50,12 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
     "estas", "aquel", "aquella", "aquellos", "aquellas"));
 
     public void configure(JobConf job) {
-        // Obtiene las fechas de la configuración del trabajo
         fechaIniStr = job.get("fechaIni");
         fechaFinStr = job.get("fechaFin");
-        LOG.info("Fechas en el Mapper");
-        LOG.info(fechaIniStr);
-        LOG.info(fechaFinStr);
+        LOG.info("Configurado con fechaIni=" + fechaIniStr + ", fechaFin=" + fechaFinStr);
     }
 
-    public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output,
-        Reporter reporter) throws IOException {
+    public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
     String line = value.toString();
     StringTokenizer tokenizer = new StringTokenizer(line, "\n");
     while (tokenizer.hasMoreTokens()) {
@@ -67,7 +64,7 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
         if (parts.length == 2) {
             String title = parts[0];
             String date = parts[1];
-            if (isDateInRange(date)) {
+            if (isDateInRange(date, fechaIniStr, fechaFinStr)) {
                 StringTokenizer wordTokenizer = new StringTokenizer(title);
                 while (wordTokenizer.hasMoreTokens()) {
                     String wordStr = wordTokenizer.nextToken();
@@ -79,19 +76,13 @@ public class WC_Mapper extends MapReduceBase implements Mapper<LongWritable, Tex
             }
         }
     }
-}
+    }
 
     private boolean isDateInRange(String date) {
-        LOG.info("Fecha como obtenida del txt");
-        LOG.info(date);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate fechaIni = LocalDate.parse(fechaIniStr, formatter);
         LocalDate fechaFin = LocalDate.parse(fechaFinStr, formatter);
         LocalDate fecha = LocalDate.parse(date, formatter);
-        LOG.info("Fecha como date");
-        LOG.info(fechaIni);
-        LOG.info(fechaFin);
-        LOG.info(fecha);
         return (fecha.isAfter(fechaIni) || fecha.isEqual(fechaIni)) && (fecha.isBefore(fechaFin) || fecha.isEqual(fechaFin));
     }
 }
